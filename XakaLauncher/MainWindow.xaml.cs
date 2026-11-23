@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,13 +10,99 @@ namespace XakaLauncher;
 
 public partial class MainWindow : Window
 {
+    private static string SettingsPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "XakaLauncher", "settings.json");
+
     public MainWindow()
     {
         InitializeComponent();
-        GameFolderBox.Text = Path.Combine(
+        LoadSettings();
+        Directory.CreateDirectory(GameFolderBox.Text);
+        Closing += (_, _) => SaveSettings();
+    }
+
+    private void LoadSettings()
+    {
+        var defaultGameDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             ".xakalauncher", "game");
-        Directory.CreateDirectory(GameFolderBox.Text);
+
+        try
+        {
+            if (!File.Exists(SettingsPath))
+            {
+                GameFolderBox.Text = defaultGameDirectory;
+                return;
+            }
+
+            var json = File.ReadAllText(SettingsPath);
+            var settings = JsonSerializer.Deserialize<LauncherSettings>(json);
+            if (settings is null)
+            {
+                GameFolderBox.Text = defaultGameDirectory;
+                return;
+            }
+
+            NicknameBox.Text = Regex.IsMatch(settings.Nickname ?? "", @"^[A-Za-z0-9_]{1,16}$")
+                ? settings.Nickname
+                : "Player";
+
+            var versionItem = VersionBox.Items.OfType<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content?.ToString() == settings.MinecraftVersion);
+            if (versionItem is not null) VersionBox.SelectedItem = versionItem;
+
+            var loaderItem = LoaderBox.Items.OfType<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content?.ToString() == settings.Loader);
+            if (loaderItem is not null) LoaderBox.SelectedItem = loaderItem;
+
+            RamSlider.Value = Math.Clamp(settings.RamGb, 2, 16);
+            GameFolderBox.Text = !string.IsNullOrWhiteSpace(settings.GameDirectory) &&
+                Path.IsPathRooted(settings.GameDirectory)
+                    ? settings.GameDirectory
+                    : defaultGameDirectory;
+        }
+        catch
+        {
+            GameFolderBox.Text = defaultGameDirectory;
+            StatusText.Text = "Не удалось прочитать настройки. Использованы значения по умолчанию.";
+        }
+    }
+
+    private void SaveSettings()
+    {
+        try
+        {
+            var directory = Path.GetDirectoryName(SettingsPath)!;
+            Directory.CreateDirectory(directory);
+            var settings = new LauncherSettings
+            {
+                Nickname = NicknameBox.Text.Trim(),
+                MinecraftVersion = (VersionBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "1.21.4",
+                Loader = (LoaderBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Vanilla",
+                RamGb = (int)RamSlider.Value,
+                GameDirectory = GameFolderBox.Text.Trim()
+            };
+            var temporaryPath = SettingsPath + ".tmp";
+            File.WriteAllText(temporaryPath, JsonSerializer.Serialize(settings, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
+            File.Move(temporaryPath, SettingsPath, true);
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Не удалось сохранить настройки: {ex.Message}";
+        }
+    }
+
+    private sealed class LauncherSettings
+    {
+        public string Nickname { get; set; } = "Player";
+        public string MinecraftVersion { get; set; } = "1.21.4";
+        public string Loader { get; set; } = "Vanilla";
+        public int RamGb { get; set; } = 4;
+        public string GameDirectory { get; set; } = "";
     }
 
     private void RamSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
