@@ -55,6 +55,13 @@ public sealed class ModrinthBrowserWindow : Window
             Foreground = Brush("#BDAECF"),
             Margin = new Thickness(0, 5, 0, 14)
         });
+        header.Children.Add(new TextBlock
+        {
+            Text = "Важно: Modrinth модерирует проекты, но это не гарантия отсутствия вредоносных файлов. Скачивай только то, чему доверяешь.",
+            Foreground = Brush("#F2C78B"),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 0, 0, 12)
+        });
 
         var controls = new Grid { Margin = new Thickness(0, 0, 0, 10) };
         controls.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -174,9 +181,11 @@ public sealed class ModrinthBrowserWindow : Window
         var panel = new DockPanel();
         card.Child = panel;
 
+        var needsLoader = projectType == "mod" && _loader == "Vanilla";
         var button = new Button
         {
-            Content = "СКАЧАТЬ",
+            Content = needsLoader ? "НУЖЕН FABRIC/FORGE" : "СКАЧАТЬ",
+            IsEnabled = !needsLoader,
             Tag = (projectId, projectType),
             Padding = new Thickness(14, 8, 14, 8),
             Margin = new Thickness(14, 0, 0, 0),
@@ -261,13 +270,27 @@ public sealed class ModrinthBrowserWindow : Window
             Directory.CreateDirectory(targetFolder);
             var safeName = Path.GetFileName(fileName);
             var targetPath = Path.Combine(targetFolder, safeName);
+            var baseName = Path.GetFileNameWithoutExtension(safeName);
+            var extension = Path.GetExtension(safeName);
+            var suffix = 2;
+            while (File.Exists(targetPath))
+                targetPath = Path.Combine(targetFolder, $"{baseName} ({suffix++}){extension}");
 
-            using var download = await Http.GetAsync(uri);
-            download.EnsureSuccessStatusCode();
-            await using var output = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None);
-            await download.Content.CopyToAsync(output);
+            var temporaryPath = targetPath + ".download";
+            try
+            {
+                using var download = await Http.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
+                download.EnsureSuccessStatusCode();
+                await using (var output = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                    await download.Content.CopyToAsync(output);
+                File.Move(temporaryPath, targetPath);
+            }
+            finally
+            {
+                if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
+            }
 
-            _status.Text = $"Скачано: {safeName} → {targetFolderName}. Перед запуском проверь совместимость и источник проекта.";
+            _status.Text = $"Скачано: {Path.GetFileName(targetPath)} → {targetFolderName}. Перед запуском проверь совместимость и источник проекта.";
             button.Content = "ГОТОВО";
         }
         catch (Exception ex)
