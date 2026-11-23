@@ -41,6 +41,34 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenModsFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var gameDirectory = GameFolderBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(gameDirectory))
+            {
+                StatusText.Text = "Сначала выберите папку Minecraft.";
+                return;
+            }
+
+            var modsDirectory = Path.Combine(gameDirectory, "mods");
+            Directory.CreateDirectory(modsDirectory);
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = modsDirectory,
+                UseShellExecute = true
+            });
+
+            StatusText.Text = "Открыта папка mods. Перетащите туда .jar-файлы модов.";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Не удалось открыть папку mods: {ex.Message}";
+        }
+    }
+
     private async void CheckJava_Click(object sender, RoutedEventArgs e)
     {
         JavaStatusText.Text = "Проверяю Java...";
