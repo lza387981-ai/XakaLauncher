@@ -38,7 +38,9 @@
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
                 <Button Content="MODS" Click="OpenModsFolder_Click" Padding="18,11" Margin="0,0,10,0"
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
-                <Button Content="RESOURCE PACKS" Click="OpenResourcePacksFolder_Click" Padding="18,11" Margin="0,0,12,0"
+                <Button Content="RESOURCE PACKS" Click="OpenResourcePacksFolder_Click" Padding="18,11" Margin="0,0,10,0"
+                        Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
+                <Button Content="НАСТРОЙКИ" Click="OpenSettings_Click" Padding="18,11" Margin="0,0,12,0"
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
                 <Border CornerRadius="14" BorderBrush="#593875" BorderThickness="1" Background="#211831" Padding="14,9">
                     <StackPanel Orientation="Horizontal">
@@ -100,15 +102,13 @@
                     BorderThickness="1" CornerRadius="18" Padding="24">
                 <StackPanel>
                     <TextBlock Text="ПАРАМЕТРЫ ЗАПУСКА" Style="{StaticResource SectionTitle}"/>
-                    <TextBlock Text="Оперативная память" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                    <TextBlock Text="Оперативная память для Minecraft" Foreground="{StaticResource MutedBrush}" FontSize="12"/>
                     <TextBlock x:Name="RamValueText" Text="4 ГБ" FontSize="28" FontWeight="Bold"
                                Foreground="{StaticResource PinkBrush}" Margin="0,7,0,2"/>
-                    <Slider x:Name="RamSlider" Minimum="2" Maximum="16" Value="4" TickFrequency="1"
-                            IsSnapToTickEnabled="True" ValueChanged="RamSlider_ValueChanged"/>
-                    <DockPanel Margin="0,0,0,22">
-                        <TextBlock Text="2 ГБ" Foreground="{StaticResource MutedBrush}" FontSize="11"/>
-                        <TextBlock Text="16 ГБ" Foreground="{StaticResource MutedBrush}" FontSize="11" DockPanel.Dock="Right"/>
-                    </DockPanel>
+                    <TextBlock Text="Изменить выделение ОЗУ можно в разделе «Настройки». Максимум — 10 ГБ."
+                               Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,22"/>
+                    <Slider x:Name="RamSlider" Minimum="2" Maximum="10" Value="4" TickFrequency="1"
+                            IsSnapToTickEnabled="True" Visibility="Collapsed"/>
 
                     <TextBlock Text="JAVA" Style="{StaticResource SectionTitle}"/>
                     <TextBlock x:Name="JavaStatusText" Text="Java ещё не проверена" Foreground="{StaticResource MutedBrush}"
