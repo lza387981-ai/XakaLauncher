@@ -91,6 +91,17 @@ public sealed class ModrinthBrowserWindow : Window
         _typeBox.SelectedIndex = 0;
         _typeBox.Background = Brush("#251A32");
         _typeBox.Foreground = Brushes.White;
+        _typeBox.BorderBrush = Brush("#A66BC4");
+        _typeBox.Padding = new Thickness(8, 4, 8, 4);
+        _typeBox.ItemContainerStyle = new Style(typeof(ComboBoxItem))
+        {
+            Setters =
+            {
+                new Setter(Control.ForegroundProperty, Brush("#24172E")),
+                new Setter(Control.BackgroundProperty, Brushes.White),
+                new Setter(Control.PaddingProperty, new Thickness(8, 6, 8, 6))
+            }
+        };
         Grid.SetColumn(_typeBox, 1);
         controls.Children.Add(_typeBox);
 
@@ -184,9 +195,11 @@ public sealed class ModrinthBrowserWindow : Window
         var needsLoader = projectType == "mod" && _loader == "Vanilla";
         var button = new Button
         {
-            Content = needsLoader ? "НУЖЕН FABRIC/FORGE" : "СКАЧАТЬ",
+            Content = needsLoader ? "НУЖЕН FABRIC/FORGE" :
+                projectType == "resourcepack" ? "УСТАНОВИТЬ РЕСУРСПАК" : "УСТАНОВИТЬ МОД",
             IsEnabled = !needsLoader,
             Tag = (projectId, projectType),
+            MinWidth = 150,
             Padding = new Thickness(14, 8, 14, 8),
             Margin = new Thickness(14, 0, 0, 0),
             VerticalAlignment = VerticalAlignment.Center,
@@ -291,11 +304,11 @@ public sealed class ModrinthBrowserWindow : Window
             }
 
             _status.Text = $"Скачано: {Path.GetFileName(targetPath)} → {targetFolderName}. Перед запуском проверь совместимость и источник проекта.";
-            button.Content = "ГОТОВО";
+            button.Content = projectType == "resourcepack" ? "РЕСУРСПАК УСТАНОВЛЕН" : "МОД УСТАНОВЛЕН";
         }
         catch (Exception ex)
         {
-            _status.Text = $"Не удалось скачать: {ex.Message}";
+            _status.Text = $"Не удалось установить {(projectType == "resourcepack" ? "ресурспак" : "мод")}: {ex.Message}";
             button.Content = "ПОВТОРИТЬ";
             button.IsEnabled = true;
         }
