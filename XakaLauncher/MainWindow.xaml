@@ -51,7 +51,7 @@
                 <TextBlock Text="ТВОЙ MINECRAFT. ТВОИ ПРАВИЛА." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="2,3,0,0"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Button Content="СКАЧАТЬ" Click="OpenDownloads_Click" Padding="18,11" Margin="0,0,10,0"
+                <Button Content="КАТАЛОГ МОДОВ" ToolTip="Искать и скачивать моды и ресурспаки с Modrinth" Click="OpenDownloads_Click" Padding="12,11" Margin="0,0,10,0"
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
                 <Button Content="MODS" Click="OpenModsFolder_Click" Padding="18,11" Margin="0,0,10,0"
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
