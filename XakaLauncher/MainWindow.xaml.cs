@@ -1,4 +1,7 @@
 using Microsoft.Win32;
+using CmlLib.Core;
+using CmlLib.Core.Auth;
+using CmlLib.Core.ProcessBuilder;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -103,6 +106,64 @@ public partial class MainWindow : Window
         public string Loader { get; set; } = "Vanilla";
         public int RamGb { get; set; } = 4;
         public string GameDirectory { get; set; } = "";
+    }
+
+
+    private async void Play_Click(object sender, RoutedEventArgs e)
+    {
+        var nickname = NicknameBox.Text.Trim();
+        if (!Regex.IsMatch(nickname, @"^[A-Za-z0-9_]{1,16}$"))
+        {
+            StatusText.Text = "Никнейм должен содержать 1–16 символов: латинские буквы, цифры или _.";
+            return;
+        }
+
+        var version = (VersionBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "1.21.4";
+        var loader = (LoaderBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Vanilla";
+        if (!string.Equals(loader, "Vanilla", StringComparison.OrdinalIgnoreCase))
+        {
+            StatusText.Text = $"{loader} пока не подключён к установщику. Сейчас доступен запуск Vanilla; поддержка Fabric и Forge будет следующим этапом.";
+            return;
+        }
+
+        var gameDirectory = GameFolderBox.Text.Trim();
+        if (string.IsNullOrWhiteSpace(gameDirectory))
+        {
+            StatusText.Text = "Сначала выбери папку игры.";
+            return;
+        }
+
+        PlayButton.IsEnabled = false;
+        PlayButton.Content = "ЗАГРУЗКА...";
+        try
+        {
+            SaveSettings();
+            Directory.CreateDirectory(gameDirectory);
+            StatusText.Text = $"Подготавливаю Minecraft {version}. При первом запуске загружу игровые файлы — это может занять несколько минут.";
+
+            var minecraftPath = new MinecraftPath(gameDirectory);
+            var launcher = new MinecraftLauncher(minecraftPath);
+            await launcher.InstallAsync(version);
+
+            StatusText.Text = "Файлы установлены. Подготавливаю запуск Minecraft...";
+            var process = await launcher.BuildProcessAsync(version, new MLaunchOption
+            {
+                Session = MSession.CreateOfflineSession(nickname),
+                MaximumRamMb = (int)RamSlider.Value * 1024
+            });
+
+            process.Start();
+            StatusText.Text = "Minecraft запущен. Офлайн-профиль подходит только для одиночной игры и серверов, разрешающих офлайн-вход.";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Не удалось установить или запустить Minecraft: {ex.Message}";
+        }
+        finally
+        {
+            PlayButton.IsEnabled = true;
+            PlayButton.Content = "ИГРАТЬ";
+        }
     }
 
     private void RamSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
