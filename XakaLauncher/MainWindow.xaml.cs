@@ -81,6 +81,34 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenResourcePacksFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var gameDirectory = GameFolderBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(gameDirectory))
+            {
+                StatusText.Text = "Сначала выберите папку Minecraft.";
+                return;
+            }
+
+            var resourcePacksDirectory = Path.Combine(gameDirectory, "resourcepacks");
+            Directory.CreateDirectory(resourcePacksDirectory);
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = resourcePacksDirectory,
+                UseShellExecute = true
+            });
+
+            StatusText.Text = "Открыта папка resourcepacks. Перетащите туда .zip-файлы ресурспаков.";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Не удалось открыть папку resourcepacks: {ex.Message}";
+        }
+    }
+
     private async void CheckJava_Click(object sender, RoutedEventArgs e)
     {
         JavaStatusText.Text = "Проверяю Java...";
