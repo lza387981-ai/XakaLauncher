@@ -9,4 +9,7 @@
     <RootNamespace>XakaLauncher</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CmlLib.Core" Version="4.1.0" />
+  </ItemGroup>
 </Project>
