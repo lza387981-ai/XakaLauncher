@@ -10,6 +10,8 @@ Windows Minecraft launcher project with a dark purple / neon visual style.
 - Game directory picker.
 - RAM allocation control.
 - Java discovery and version check.
+- Vanilla Minecraft installation and launch through CmlLib.Core, with RAM allocation and an offline profile for single-player/local play or servers that explicitly allow offline mode.
+- RAM settings show a warning when the selected allocation is excessive for the detected physical memory.
 - Local settings persistence for nickname, version, loader, RAM and game directory.
 - Quick buttons to open the selected game's `mods` and `resourcepacks` folders.
 - Modrinth catalog search for mods and resource packs, with version/loader filtering and downloads into the selected game directory.
@@ -28,15 +30,15 @@ GitHub Actions also builds a self-contained Windows x64 executable on pushes to 
 
 ## Roadmap
 
-1. Complete and verify the launcher UI, settings and Modrinth integration.
-2. Official Minecraft version manifest, game files, libraries and assets installation.
-3. Fabric and Forge profile installation.
-4. Game launch with clear authentication limitations.
-5. Logs, diagnostics and release packaging.
+1. Verify vanilla installation and launch on Windows with several Minecraft versions.
+2. Fabric and Forge profile installation.
+3. Microsoft account authentication for online-mode servers.
+4. Logs, diagnostics and release packaging.
 
 ## Security and account notes
 
 - The launcher does not collect HWID or send telemetry.
 - Modrinth project moderation is not a guarantee that every downloaded file is harmless. Review projects and only download content you trust.
 - Offline nicknames do not replace Microsoft authentication on online-mode servers.
-- Minecraft installation and actual game launch are not implemented yet.
+- Offline profiles are not Microsoft accounts and cannot join online-mode servers that require official authentication.
+- Fabric and Forge installation are not yet wired into the Play flow; Vanilla is the currently supported launch path.
