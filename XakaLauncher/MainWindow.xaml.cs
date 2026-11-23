@@ -2,6 +2,8 @@ using Microsoft.Win32;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.ProcessBuilder;
+using CmlLib.Core.ModLoaders.FabricMC;
+using CmlLib.Core.Installer.Forge;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -120,9 +122,10 @@ public partial class MainWindow : Window
 
         var version = (VersionBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "1.21.4";
         var loader = (LoaderBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Vanilla";
-        if (!string.Equals(loader, "Vanilla", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(loader, "Forge", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(version, "1.20.1", StringComparison.OrdinalIgnoreCase))
         {
-            StatusText.Text = $"{loader} пока не подключён к установщику. Сейчас доступен запуск Vanilla; поддержка Fabric и Forge будет следующим этапом.";
+            StatusText.Text = "Для Forge в этой версии лаунчера доступна проверенная установка Minecraft 1.20.1. Для Minecraft 1.21.x выбери Fabric.";
             return;
         }
 
@@ -143,10 +146,45 @@ public partial class MainWindow : Window
 
             var minecraftPath = new MinecraftPath(gameDirectory);
             var launcher = new MinecraftLauncher(minecraftPath);
-            await launcher.InstallAsync(version);
+            string installedVersion;
 
-            StatusText.Text = "Файлы установлены. Подготавливаю запуск Minecraft...";
-            var process = await launcher.BuildProcessAsync(version, new MLaunchOption
+            if (string.Equals(loader, "Fabric", StringComparison.OrdinalIgnoreCase))
+            {
+                StatusText.Text = $"Устанавливаю Fabric для Minecraft {version}...";
+                var fabricInstaller = new FabricInstaller(new HttpClient());
+                installedVersion = await fabricInstaller.Install(version, minecraftPath);
+                StatusText.Text = "Fabric установлен. Загружаю игровые файлы и Java...";
+                await launcher.InstallAsync(installedVersion);
+            }
+            else if (string.Equals(loader, "Forge", StringComparison.OrdinalIgnoreCase))
+            {
+                StatusText.Text = $"Подбираю совместимую сборку Forge для Minecraft {version}...";
+                var forgeInstaller = new ForgeInstaller(launcher);
+                var forgeVersions = await forgeInstaller.GetForgeVersions(version);
+                var selectedForge = forgeVersions.FirstOrDefault(v => v.IsRecommendedVersion)
+                    ?? forgeVersions.FirstOrDefault(v => v.IsLatestVersion)
+                    ?? forgeVersions.FirstOrDefault();
+
+                if (selectedForge is null)
+                    throw new InvalidOperationException($"Для Minecraft {version} не найдена доступная версия Forge.");
+
+                StatusText.Text = $"Устанавливаю Forge {selectedForge.ForgeVersionName}...";
+                installedVersion = await forgeInstaller.Install(selectedForge, new ForgeInstallOptions
+                {
+                    SkipIfAlreadyInstalled = true
+                });
+                StatusText.Text = "Forge установлен. Загружаю игровые файлы и Java...";
+                await launcher.InstallAsync(installedVersion);
+            }
+            else
+            {
+                StatusText.Text = $"Устанавливаю Minecraft {version}...";
+                installedVersion = version;
+                await launcher.InstallAsync(installedVersion);
+            }
+
+            StatusText.Text = $"Файлы {loader} установлены. Подготавливаю запуск...";
+            var process = await launcher.BuildProcessAsync(installedVersion, new MLaunchOption
             {
                 Session = MSession.CreateOfflineSession(nickname),
                 MaximumRamMb = (int)RamSlider.Value * 1024
