@@ -41,6 +41,18 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenDownloads_Click(object sender, RoutedEventArgs e)
+    {
+        var version = (VersionBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "1.21.4";
+        var loader = (LoaderBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Fabric";
+        var gameDirectory = GameFolderBox.Text.Trim();
+        var browser = new ModrinthBrowserWindow(gameDirectory, version, loader)
+        {
+            Owner = this
+        };
+        browser.ShowDialog();
+    }
+
     private void OpenModsFolder_Click(object sender, RoutedEventArgs e)
     {
         try
