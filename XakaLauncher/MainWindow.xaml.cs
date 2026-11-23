@@ -56,7 +56,7 @@ public partial class MainWindow : Window
                 .FirstOrDefault(item => item.Content?.ToString() == settings.Loader);
             if (loaderItem is not null) LoaderBox.SelectedItem = loaderItem;
 
-            RamSlider.Value = Math.Clamp(settings.RamGb, 2, 16);
+            RamSlider.Value = Math.Clamp(settings.RamGb, 2, 10);
             GameFolderBox.Text = !string.IsNullOrWhiteSpace(settings.GameDirectory) &&
                 Path.IsPathRooted(settings.GameDirectory)
                     ? settings.GameDirectory
@@ -109,6 +109,22 @@ public partial class MainWindow : Window
     {
         if (RamValueText is not null)
             RamValueText.Text = $"{(int)RamSlider.Value} ГБ";
+    }
+
+    private void OpenSettings_Click(object sender, RoutedEventArgs e)
+    {
+        var settingsWindow = new SettingsWindow((int)RamSlider.Value)
+        {
+            Owner = this
+        };
+
+        if (settingsWindow.ShowDialog() == true)
+        {
+            RamSlider.Value = settingsWindow.SelectedRamGb;
+            RamValueText.Text = $"{(int)RamSlider.Value} ГБ";
+            SaveSettings();
+            StatusText.Text = $"Выделение ОЗУ для Minecraft: {(int)RamSlider.Value} ГБ. Настройка сохранена.";
+        }
     }
 
     private void BrowseFolder_Click(object sender, RoutedEventArgs e)
