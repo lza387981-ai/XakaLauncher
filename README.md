@@ -10,7 +10,9 @@ Windows Minecraft launcher project with a dark purple / neon visual style.
 - Game directory picker.
 - RAM allocation control.
 - Java discovery and version check.
-- Vanilla Minecraft installation and launch through CmlLib.Core, with RAM allocation and an offline profile for single-player/local play or servers that explicitly allow offline mode.
+- Vanilla, Fabric, and Forge installation/launch through CmlLib.Core and its loader installers, with RAM allocation and an offline profile for single-player/local play or servers that explicitly allow offline mode.
+- Fabric installation for the selected Minecraft version using the Fabric installer integrated into CmlLib.Core.
+- Forge installation for Minecraft 1.20.1 using CmlLib.Core.Installer.Forge; unsupported Forge/Minecraft combinations are blocked with an explanation.
 - RAM settings show a warning when the selected allocation is excessive for the detected physical memory.
 - Local settings persistence for nickname, version, loader, RAM and game directory.
 - Quick buttons to open the selected game's `mods` and `resourcepacks` folders.
@@ -41,4 +43,4 @@ GitHub Actions also builds a self-contained Windows x64 executable on pushes to 
 - Modrinth project moderation is not a guarantee that every downloaded file is harmless. Review projects and only download content you trust.
 - Offline nicknames do not replace Microsoft authentication on online-mode servers.
 - Offline profiles are not Microsoft accounts and cannot join online-mode servers that require official authentication.
-- Fabric and Forge installation are not yet wired into the Play flow; Vanilla is the currently supported launch path.
+- Fabric is wired into the Play flow. Forge is wired for Minecraft 1.20.1; the current Forge installer package documents tested support through 1.20.1. Forge is not offered for newer versions in this build.
