@@ -36,7 +36,9 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Button Content="СКАЧАТЬ" Click="OpenDownloads_Click" Padding="18,11" Margin="0,0,10,0"
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
-                <Button Content="MODS" Click="OpenModsFolder_Click" Padding="18,11" Margin="0,0,12,0"
+                <Button Content="MODS" Click="OpenModsFolder_Click" Padding="18,11" Margin="0,0,10,0"
+                        Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
+                <Button Content="RESOURCE PACKS" Click="OpenResourcePacksFolder_Click" Padding="18,11" Margin="0,0,12,0"
                         Background="#39234D" BorderBrush="#C45BFF" Foreground="#F7DFFF" FontWeight="Bold"/>
                 <Border CornerRadius="14" BorderBrush="#593875" BorderThickness="1" Background="#211831" Padding="14,9">
                     <StackPanel Orientation="Horizontal">
