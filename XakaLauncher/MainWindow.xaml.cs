@@ -139,7 +139,7 @@ public partial class MainWindow : Window
         {
             SaveSettings();
             Directory.CreateDirectory(gameDirectory);
-            StatusText.Text = $"Подготавливаю Minecraft {version}. При первом запуске загружу игровые файлы — это может занять несколько минут.";
+            StatusText.Text = $"Подготавливаю Minecraft {version}: загружаю игровые файлы и совместимую Java. При первом запуске это может занять несколько минут.";
 
             var minecraftPath = new MinecraftPath(gameDirectory);
             var launcher = new MinecraftLauncher(minecraftPath);
@@ -281,8 +281,8 @@ public partial class MainWindow : Window
 
         if (javaPath is null)
         {
-            JavaStatusText.Text = "Java не найдена. Для Minecraft 1.21.4 обычно нужна Java 21.";
-            StatusText.Text = "Установите Java 21 и повторите проверку.";
+            JavaStatusText.Text = "Системная Java не найдена. Это нормально: XakaLauncher загрузит совместимую Java вместе с файлами Minecraft при первом запуске.";
+            StatusText.Text = "Отдельно устанавливать Java не нужно. Нажми «ИГРАТЬ», чтобы начать установку Minecraft и Java.";
             return;
         }
 
