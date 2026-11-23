@@ -35,9 +35,9 @@ public sealed class SettingsWindow : Window
     {
         Title = "XakaLauncher — Настройки";
         Width = 560;
-        Height = 440;
+        Height = 580;
         MinWidth = 500;
-        MinHeight = 400;
+        MinHeight = 580;
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = Brush("#171020");
