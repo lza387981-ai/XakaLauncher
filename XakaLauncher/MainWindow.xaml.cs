@@ -1,3 +1,4 @@
+using System.Net.Http;
 using Microsoft.Win32;
 using CmlLib.Core;
 using CmlLib.Core.Auth;
