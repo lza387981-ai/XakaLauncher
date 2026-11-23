@@ -28,6 +28,7 @@ public sealed class SettingsWindow : Window
     private readonly Slider _ramSlider;
     private readonly TextBlock _ramValue;
     private readonly TextBlock _memoryInfo;
+    private readonly TextBlock _warning;
     public int SelectedRamGb { get; private set; }
 
     public SettingsWindow(int currentRamGb)
@@ -97,8 +98,21 @@ public sealed class SettingsWindow : Window
             IsSnapToTickEnabled = true,
             Margin = new Thickness(0, 0, 0, 8)
         };
-        _ramSlider.ValueChanged += (_, _) => _ramValue.Text = $"{(int)_ramSlider.Value} ГБ";
+        _ramSlider.ValueChanged += (_, _) =>
+        {
+            _ramValue.Text = $"{(int)_ramSlider.Value} ГБ";
+            UpdateRamWarning(installedRamGb, recommendedRamGb);
+        };
         root.Children.Add(_ramSlider);
+
+        _warning = new TextBlock
+        {
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 4, 0, 14),
+            FontWeight = FontWeights.SemiBold
+        };
+        root.Children.Add(_warning);
+        UpdateRamWarning(installedRamGb, recommendedRamGb);
 
         var range = new DockPanel { Margin = new Thickness(0, 0, 0, 18) };
         range.Children.Add(new TextBlock { Text = "2 ГБ", Foreground = Brush("#BDAECF") });
@@ -143,6 +157,31 @@ public sealed class SettingsWindow : Window
         buttons.Children.Add(cancel);
         buttons.Children.Add(save);
         root.Children.Add(buttons);
+    }
+
+    private void UpdateRamWarning(int installedRamGb, int recommendedRamGb)
+    {
+        var selected = (int)_ramSlider.Value;
+        if (installedRamGb <= 0)
+        {
+            _warning.Text = "Не удалось проверить память компьютера. Не выбирай максимальное значение без необходимости.";
+            _warning.Foreground = Brush("#F2C78B");
+        }
+        else if (selected > recommendedRamGb + 2)
+        {
+            _warning.Text = $"Внимание: {selected} ГБ — слишком большое выделение для компьютера с {installedRamGb} ГБ ОЗУ. Рекомендуем {recommendedRamGb} ГБ. Оставь запас Windows и другим программам.";
+            _warning.Foreground = Brush("#FF8D9A");
+        }
+        else if (selected > recommendedRamGb)
+        {
+            _warning.Text = $"Это выше рекомендуемых {recommendedRamGb} ГБ. Убедись, что остальной памяти хватит Windows и другим программам.";
+            _warning.Foreground = Brush("#F2C78B");
+        }
+        else
+        {
+            _warning.Text = $"Хороший выбор: {selected} ГБ. Рекомендация для этого компьютера — около {recommendedRamGb} ГБ.";
+            _warning.Foreground = Brush("#A8E6B0");
+        }
     }
 
     private static int GetInstalledRamGb()
